@@ -1,0 +1,106 @@
+
+<html><head>
+  <title>Smart Light & Water Control</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      display: flex; flex-direction: column;
+      align-items: center;
+      background-color: #f7f7f7;
+    }
+    h1 { margin: 20px 0; text-align: center; }
+    h2 { margin: 20px 0 10px; }
+    .button {
+      padding: 12px 20px;
+      margin: 5px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      min-width: 90px;
+    }
+    .on { background-color: #4CAF50; color: white; }
+    .off { background-color: #f44336; color: white; }
+    .auto { background-color: #2196F3; color: white; }
+    .indicator {
+      display: inline-block;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    .status {
+      margin: 6px 0;
+      font-size: 18px;
+    }
+    .bar-container {
+      width: 90%;
+      max-width: 400px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      margin: 10px 0 20px;
+      height: 24px;
+      overflow: hidden;
+    }
+    .bar {
+      height: 100%;
+      background: #4CAF50;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .section {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 10px;
+      width: 95%;
+      max-width: 500px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+  </style></head>
+  <body>
+  <h1>Smart Light & Water Control</h1>
+
+  <div class="section">
+    <h2>Light Control <span id="lightIndicator" class="indicator"></span></h2>
+    <div class="status">Motion: <span id="motionStatus">--</span></div>
+    <div class="status">Mode: <span id="lightMode">--</span></div>
+    <a href="/toggle?device=light&cmd=on" class="button on">Turn ON</a>
+    <a href="/toggle?device=light&cmd=off" class="button off">Turn OFF</a>
+    <a href="/toggle?device=light&cmd=auto" class="button auto">Auto Mode</a>
+  </div>
+
+  <div class="section">
+    <h2>Water Pump Control <span id="pumpIndicator" class="indicator"></span></h2>
+    <div class="status">Mode: <span id="pumpMode">--</span></div>
+    <div class="status">Water Level: <span id="waterLevel">0</span>%</div>
+    <div class="bar-container">
+      <div id="progressBar" class="bar"></div>
+    </div>
+    <a href="/toggle?device=pump&cmd=on" class="button on">Turn ON</a>
+    <a href="/toggle?device=pump&cmd=off" class="button off">Turn OFF</a>
+    <a href="/toggle?device=pump&cmd=auto" class="button auto">Auto Mode</a>
+  </div>
+
+  <script>
+    function update() {
+      fetch('/status')
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('motionStatus').textContent = data.motion;
+          document.getElementById('lightMode').textContent = data.lightMode;
+          document.getElementById('pumpMode').textContent = data.pumpMode;
+          document.getElementById('waterLevel').textContent = data.waterLevel;
+
+          document.getElementById('lightIndicator').style.background = data.light === "ON" ? 'green' : 'red';
+          document.getElementById('pumpIndicator').style.background = data.pump === "ON" ? 'green' : 'red';
+
+          document.getElementById('progressBar').style.width = data.waterLevel + '%';
+        });
+    }
+    setInterval(update, 1000);
+    window.onload = update;
+  </script>
+  </body></html>
